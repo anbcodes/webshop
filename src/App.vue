@@ -46,7 +46,7 @@ export default {
         price.style.textAlign = 'center';
         price.innerHTML = `$${item.price}<br>${item.name}`;
         const img = document.createElement('img');
-        JsBarcode(img, item.barcodeId);
+        JsBarcode(img, String(item.barcodeId));
 
         div.appendChild(price);
         div.appendChild(img);
