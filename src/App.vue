@@ -17,7 +17,7 @@
 import JsBarcode from 'jsbarcode';
 import MyTable from './components/MyTable.vue';
 import ScanItems from './components/ScanItems.vue';
-
+import print from './util/Print';
 
 export default {
   name: 'App',
@@ -37,7 +37,6 @@ export default {
 
   methods: {
     tablePrint(itemList) {
-      const iframe = document.createElement('iframe');
       const items = itemList.map((item) => {
         const div = document.createElement('div');
         div.style.border = '2px dotted grey';
@@ -51,23 +50,17 @@ export default {
         div.appendChild(img);
         return div;
       });
+      const div = document.createElement('div');
+      div.style.display = 'flex';
+      div.style.flexWrap = 'wrap';
+      div.style.flexDirection = 'row';
+      div.style.width = '8.5in';
+      div.style.overflow = 'wrap';
 
-      iframe.onload = async () => {
-        const div = document.createElement('div');
-        div.style.display = 'flex';
-        div.style.flexDirection = 'row';
-        div.style.width = '8.5in';
-        div.style.overflow = 'wrap';
-
-        items.forEach((item) => {
-          div.appendChild(item);
-        });
-        iframe.contentDocument.body.appendChild(div);
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-        window.setTimeout(() => { iframe.remove(); }, 5);
-      };
-      document.body.appendChild(iframe);
+      items.forEach((item) => {
+        div.appendChild(item);
+      });
+      print(div);
     },
 
     onScanFinish(items) {
@@ -104,14 +97,7 @@ export default {
           </div>
       `;
       receipt.innerHTML += html;
-      const iframe = document.createElement('iframe');
-      iframe.onload = () => {
-        iframe.contentDocument.body.appendChild(receipt);
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-        iframe.remove();
-      };
-      document.body.appendChild(iframe);
+      print(receipt);
       this.page = 'table';
     },
     async startItems() {
