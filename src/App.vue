@@ -52,7 +52,7 @@ export default {
         return div;
       });
 
-      iframe.onload = () => {
+      iframe.onload = async () => {
         const div = document.createElement('div');
         div.style.display = 'flex';
         div.style.flexDirection = 'row';
@@ -65,7 +65,7 @@ export default {
         iframe.contentDocument.body.appendChild(div);
         iframe.contentWindow.focus();
         iframe.contentWindow.print();
-        iframe.remove();
+        window.setTimeout(() => { iframe.remove(); }, 5);
       };
       document.body.appendChild(iframe);
     },
