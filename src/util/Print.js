@@ -1,10 +1,12 @@
 export default function print(element) {
   const iframe = document.createElement('iframe');
-  iframe.onload = async () => {
+  iframe.onload = () => {
     iframe.contentDocument.body.appendChild(element);
-    iframe.contentWindow.focus();
-    iframe.contentWindow.print();
-    window.setTimeout(() => { iframe.remove(); }, 5);
+    setTimeout(() => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+      window.setTimeout(() => { iframe.remove(); }, 5);
+    }, 2000);
   };
   document.body.appendChild(iframe);
 }
