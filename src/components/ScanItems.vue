@@ -88,7 +88,7 @@ export default {
       beep.play();
       this.currentItems
         .push(this.items
-          .filter(item => item.barcodeId === +data.codeResult.code)[0]);
+          .filter(item => item.barcodeId === parseInt(data.codeResult.code, 36))[0]);
       this.currentItems = [...this.currentItems];
       this.detectionInLastSecond = true;
       setTimeout(() => { this.detectionInLastSecond = false; }, 1000);
