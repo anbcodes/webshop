@@ -41,15 +41,17 @@ export default {
         const div = document.createElement('div');
         div.style.border = '2px dotted grey';
         const price = document.createElement('div');
-        price.style.width = '0.7in';
-        price.style.overflow = 'wrap';
+        price.style.width = '1.2in';
+        price.style.textOverflow = 'wrap';
         price.style.textAlign = 'center';
-        price.innerHTML = `$${item.price}<br>${item.name}`;
-        const img = document.createElement('img');
-        JsBarcode(img, String(item.barcodeId));
 
-        div.appendChild(price);
+        price.innerHTML = `${item.name} ($${item.price})`;
+        const img = document.createElement('img');
+        JsBarcode(img, item.barcodeId.toString(36), {
+          displayValue: false,
+        });
         div.appendChild(img);
+        div.appendChild(price);
         return div;
       });
       const div = document.createElement('div');
@@ -57,8 +59,7 @@ export default {
       div.style.flexWrap = 'wrap';
       div.style.flexDirection = 'row';
       div.style.width = '8.5in';
-      div.style.overflow = 'wrap';
-
+      div.style.textOverflow = 'wrap';
       items.forEach((item) => {
         div.appendChild(item);
       });
