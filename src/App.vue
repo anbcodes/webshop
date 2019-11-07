@@ -1,28 +1,128 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+  <v-app>
+    <v-content>
+      <my-table v-if="page === 'table'" @print="tablePrint" />
+      <scan-items ref="scan" v-if="page === 'scan'" @finish="onScanFinish"/>
+      <v-btn v-if="page === 'table' " @click="startItems()">
+        Scan Items
+      </v-btn>
+      <v-btn v-if="page === 'table' " @click="setStoreName()">
+        Set store name
+      </v-btn>
+    </v-content>
+  </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue';
+import JsBarcode from 'jsbarcode';
+import MyTable from './components/MyTable.vue';
+import ScanItems from './components/ScanItems.vue';
+
 
 export default {
-  name: 'app',
+  name: 'App',
+
   components: {
-    HelloWorld,
+    'my-table': MyTable,
+    'scan-items': ScanItems,
+  },
+  mounted() {
+    if (!localStorage.getItem('name') || localStorage.getItem('name') === '') {
+      this.setStoreName();
+    }
+  },
+  data: () => ({
+    page: 'table',
+  }),
+
+  methods: {
+    tablePrint(itemList) {
+      const iframe = document.createElement('iframe');
+      const items = itemList.map((item) => {
+        const div = document.createElement('div');
+        div.style.border = '2px dotted grey';
+        const price = document.createElement('div');
+        price.style.textAlign = 'center';
+        price.innerText = `$${item.price}`;
+        const img = document.createElement('img');
+        JsBarcode(img, item.barcodeId);
+
+        div.appendChild(price);
+        div.appendChild(img);
+        return div;
+      });
+
+      iframe.onload = () => {
+        const div = document.createElement('div');
+        div.style.display = 'flex';
+        div.style.flexDirection = 'row';
+        div.style.width = '8.5in';
+        div.style.overflow = 'wrap';
+
+        items.forEach((item) => {
+          div.appendChild(item);
+        });
+        iframe.contentDocument.body.appendChild(div);
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        iframe.remove();
+      };
+      document.body.appendChild(iframe);
+    },
+
+    onScanFinish(items) {
+      const receipt = document.createElement('div');
+      receipt.style.width = '2.5in';
+      receipt.style.border = '2px solid grey';
+      receipt.innerHTML = `<div style="text-align: center;">
+        Thank You For Shopping at<br>${localStorage.getItem('name')}
+      </div><br><br><br>`;
+      let totalCost = 0;
+      items.forEach((item) => {
+        totalCost += +item.price;
+        const html = `
+          <div style="display: flex;">
+            <div style="display: flex; width: 70%; text-align: right;">
+              ${item.name}
+            </div>
+            <div style="display: flex; width: 30%; text-align: left;">
+              $${item.price}
+            </div>
+          </div>
+        `;
+        receipt.innerHTML += html;
+      });
+
+      const html = `
+          <div style="display: flex;">
+            <div style="display: flex; width: 70%; text-align: right;">
+              Total:
+            </div>
+            <div style="display: flex; width: 30%; text-align: left;">
+              $${totalCost}
+            </div>
+          </div>
+      `;
+      receipt.innerHTML += html;
+      const iframe = document.createElement('iframe');
+      iframe.onload = () => {
+        iframe.contentDocument.body.appendChild(receipt);
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        iframe.remove();
+      };
+      document.body.appendChild(iframe);
+      this.page = 'table';
+    },
+    async startItems() {
+      this.page = 'scan';
+      await this.$nextTick();
+      this.$refs.scan.start();
+    },
+    setStoreName() {
+      const name = prompt('What is the name of your store?');
+      localStorage.setItem('name', name);
+    },
   },
 };
 </script>
-
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
