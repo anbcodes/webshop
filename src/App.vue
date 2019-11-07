@@ -41,8 +41,10 @@ export default {
         const div = document.createElement('div');
         div.style.border = '2px dotted grey';
         const price = document.createElement('div');
+        price.style.width = '0.7in';
+        price.style.overflow = 'wrap';
         price.style.textAlign = 'center';
-        price.innerText = `$${item.price}`;
+        price.innerHTML = `$${item.price}<br>${item.name}`;
         const img = document.createElement('img');
         JsBarcode(img, item.barcodeId);
 
