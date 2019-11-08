@@ -1,15 +1,25 @@
 <template>
   <v-app>
-    <v-content>
-      <my-table v-if="page === 'table'" />
-      <scan-items ref="scan" v-if="page === 'scan'" @finish="onScanFinish"/>
-      <v-btn v-if="page === 'table' " @click="startItems()">
-        Scan Items
-      </v-btn>
-      <v-btn v-if="page === 'table' " @click="setStoreName()">
-        Set store name
-      </v-btn>
-    </v-content>
+    <v-container fluid>
+      <v-row>
+        <v-col cols="12">
+          <my-table v-if="page === 'table'" />
+          <scan-items ref="scan" v-if="page === 'scan'" @finish="onScanFinish"/>
+        </v-col>
+      </v-row>
+      <v-row v-if="page === 'table'">
+        <v-col cols="2">
+          <v-btn outlined block @click="setStoreName()">
+            Set store name
+          </v-btn>
+        </v-col>
+        <v-col cols="2">
+          <v-btn outlined block @click="startItems()">
+            Scan Items
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
   </v-app>
 </template>
 
