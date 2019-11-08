@@ -7,10 +7,9 @@ export default {
     const strList = str.split(' ');
     let currentStr = '';
     const rows = [];
-    strList.forEach((item) => {
-      if ((currentStr + item).length < 25) {
-        currentStr += item;
-      } else {
+    strList.forEach((item, i) => {
+      currentStr += item;
+      if ((currentStr + (strList[i + 1] || 0)).length >= 25) {
         rows.push(currentStr);
         currentStr = '';
       }
@@ -21,7 +20,7 @@ export default {
     const lastRow = rows.slice(-1)[0];
     const newLastRow = lastRow + ' '.repeat(40 - lastRow.length - this.formatPrice(price).length) + this.formatPrice(price);
     rows[rows.length - 1] = newLastRow;
-    console.log(newLastRow);
+    console.log(rows, newLastRow);
     return rows.join('\n');
   },
 };
