@@ -25,8 +25,11 @@
       </v-container>
     </v-row>
     <v-row>
-      <v-btn @click="finish">
-        Finish
+      <v-btn @click="print">
+        Print receipt
+      </v-btn>
+      <v-btn @click="email">
+        Email receipt
       </v-btn>
     </v-row>
   </v-container>
@@ -74,11 +77,28 @@ export default {
 
     finish() {
       Scanner.stop();
-      this.printReceipt();
       this.$emit('finish', this.currentItems);
     },
 
-    printReceipt() {
+
+    print() {
+      this.finish();
+      const html = this.getReceiptHtml();
+      print(html);
+    },
+
+    email() {
+      this.finish();
+      const text = this.getReceiptPlainText();
+      const link = document.createElement('a');
+      const email = window.prompt('Enter email');
+      link.href = `mailto:${email}?subject=Receipt from ${localStorage.getItem('name')}&body=${encodeURIComponent(text)}`;
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => { link.remove(); }, 1000);
+    },
+
+    getReceiptHtml() {
       const receipt = document.createElement('div');
       receipt.style.width = '2.5in';
       receipt.style.border = '2px solid grey';
@@ -114,7 +134,20 @@ export default {
           </div>
       `;
       receipt.innerHTML += html;
-      print(receipt);
+      return receipt;
+    },
+    getReceiptPlainText() {
+      let receipt = `Thank You For Shopping at ${localStorage.getItem('name')}\nHere is your receipt:\n`;
+      let totalCost = 0;
+      this.currentItems.forEach((item) => {
+        totalCost += +item.price;
+        receipt += `${formatter.formatStringForReceipt(item.name, item.price)}\n`;
+      });
+
+      const text = `\n\n\n${formatter.formatStringForReceipt('Total:', totalCost)}`;
+      receipt += text;
+      console.log('RECEIPT', receipt);
+      return receipt;
     },
   },
 };
