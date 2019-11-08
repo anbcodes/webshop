@@ -6,15 +6,15 @@
           <tr>
             <th class="text-left">Name</th>
             <th class="text-left">Price</th>
-            <th class="text-left">+ to print</th>
-            <th class="text-left">- from print</th>
-            <th class="text-left"># in print</th>
+            <th class="text-left">Add to print</th>
+            <th class="text-left">Remove from print</th>
+            <th class="text-left">Number to print</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="item in items" :key="item.barcodeId" @click="editItem(item)">
             <td>{{ item.name }}</td>
-            <td>{{ item.price }}</td>
+            <td>{{ formatter.formatPrice(item.price) }}</td>
             <td>
               <v-btn icon small @click.stop="addToPrint(item)">
                 <v-icon>
@@ -67,14 +67,18 @@
     <v-btn @click="enterId()">
       Enter Id
     </v-btn>
-    <v-btn @click="$emit('print', toPrint)">
+    <v-btn @click="printBarcodes()">
       Print all
     </v-btn>
   </v-container>
 </template>
 <script>
+import JsBarcode from 'jsbarcode';
+
 import Table from '../util/Table';
 import EditItemDialog from './EditItemDialog.vue';
+import print from '../util/Print';
+import formatter from '../util/Formatter';
 
 export default {
   components: {
@@ -86,7 +90,8 @@ export default {
     editItemDialogOpen: false,
     itemCreate: false,
     table: new Table(),
-    toPrint: [],
+    itemsToPrint: [],
+    formatter,
   }),
   async mounted() {
     this.items = (await this.table.get()) || [];
@@ -105,7 +110,7 @@ export default {
       this.items = await this.table.get();
     },
     async itemUpdated(item) {
-      this.toPrint = [];
+      this.itemsToPrint = [];
       console.log('ITEMS', this.items);
       console.log('item', item);
       if (item.create) {
@@ -167,25 +172,54 @@ export default {
     },
 
     removeFromPrint(item) {
-      if (this.toPrint.indexOf(item) !== -1) {
-        this.toPrint.splice(this.toPrint.indexOf(item), 1);
+      if (this.itemsToPrint.indexOf(item) !== -1) {
+        this.itemsToPrint.splice(this.itemsToPrint.indexOf(item), 1);
       }
       this.$forceUpdate();
     },
 
     addToPrint(item) {
-      this.toPrint.push(item);
+      this.itemsToPrint.push(item);
     },
 
     countPrint(item) {
       let count = 0;
-      console.log('toPrint', this.toPrint);
-      this.toPrint.forEach((i) => {
+      this.itemsToPrint.forEach((i) => {
         if (i === item) {
           count += 1;
         }
       });
       return count;
+    },
+
+    printBarcodes() {
+      const items = this.itemsToPrint.map((item) => {
+        const div = document.createElement('div');
+        div.style.border = '2px dotted grey';
+        const price = document.createElement('div');
+        price.style.width = '1.2in';
+        price.style.textOverflow = 'wrap';
+        price.style.textAlign = 'center';
+
+        price.innerHTML = `${item.name} ($${item.price})`;
+        const img = document.createElement('img');
+        JsBarcode(img, item.barcodeId.toString(36), {
+          displayValue: false,
+        });
+        div.appendChild(img);
+        div.appendChild(price);
+        return div;
+      });
+      const div = document.createElement('div');
+      div.style.display = 'flex';
+      div.style.flexWrap = 'wrap';
+      div.style.flexDirection = 'row';
+      div.style.width = '8.5in';
+      div.style.textOverflow = 'wrap';
+      items.forEach((item) => {
+        div.appendChild(item);
+      });
+      print(div);
     },
   },
 };

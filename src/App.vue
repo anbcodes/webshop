@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-content>
-      <my-table v-if="page === 'table'" @print="tablePrint" />
+      <my-table v-if="page === 'table'" />
       <scan-items ref="scan" v-if="page === 'scan'" @finish="onScanFinish"/>
       <v-btn v-if="page === 'table' " @click="startItems()">
         Scan Items
@@ -14,10 +14,8 @@
 </template>
 
 <script>
-import JsBarcode from 'jsbarcode';
 import MyTable from './components/MyTable.vue';
 import ScanItems from './components/ScanItems.vue';
-import print from './util/Print';
 
 export default {
   name: 'App',
@@ -36,71 +34,7 @@ export default {
   }),
 
   methods: {
-    tablePrint(itemList) {
-      const items = itemList.map((item) => {
-        const div = document.createElement('div');
-        div.style.border = '2px dotted grey';
-        const price = document.createElement('div');
-        price.style.width = '1.2in';
-        price.style.textOverflow = 'wrap';
-        price.style.textAlign = 'center';
-
-        price.innerHTML = `${item.name} ($${item.price})`;
-        const img = document.createElement('img');
-        JsBarcode(img, item.barcodeId.toString(36), {
-          displayValue: false,
-        });
-        div.appendChild(img);
-        div.appendChild(price);
-        return div;
-      });
-      const div = document.createElement('div');
-      div.style.display = 'flex';
-      div.style.flexWrap = 'wrap';
-      div.style.flexDirection = 'row';
-      div.style.width = '8.5in';
-      div.style.textOverflow = 'wrap';
-      items.forEach((item) => {
-        div.appendChild(item);
-      });
-      print(div);
-    },
-
-    onScanFinish(items) {
-      const receipt = document.createElement('div');
-      receipt.style.width = '2.5in';
-      receipt.style.border = '2px solid grey';
-      receipt.innerHTML = `<div style="text-align: center;">
-        Thank You For Shopping at<br>${localStorage.getItem('name')}
-      </div><br><br><br>`;
-      let totalCost = 0;
-      items.forEach((item) => {
-        totalCost += +item.price;
-        const html = `
-          <div style="display: flex;">
-            <div style="display: flex; width: 70%; text-align: right;">
-              ${item.name}
-            </div>
-            <div style="display: flex; width: 30%; text-align: left;">
-              $${item.price}
-            </div>
-          </div>
-        `;
-        receipt.innerHTML += html;
-      });
-
-      const html = `
-          <div style="display: flex;">
-            <div style="display: flex; width: 70%; text-align: right;">
-              Total:
-            </div>
-            <div style="display: flex; width: 30%; text-align: left;">
-              $${totalCost}
-            </div>
-          </div>
-      `;
-      receipt.innerHTML += html;
-      print(receipt);
+    onScanFinish() {
       this.page = 'table';
     },
     async startItems() {
