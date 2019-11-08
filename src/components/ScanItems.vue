@@ -101,6 +101,7 @@ export default {
     getReceiptHtml() {
       const receipt = document.createElement('div');
       receipt.style.width = '2.5in';
+      receipt.style.padding = '0.1in';
       receipt.style.border = '2px solid grey';
       receipt.innerHTML = `<div style="text-align: center;">
         Thank You For Shopping at<br>${localStorage.getItem('name')}
@@ -110,10 +111,10 @@ export default {
         totalCost += +item.price;
         const html = `
           <div style="display: flex;">
-            <div style="display: flex; width: 70%; text-align: right;">
+            <div style="display: flex; width: 60%; text-align: left; text-overflow: wrap;">
               ${item.name}
             </div>
-            <div style="display: flex; width: 30%; text-align: left;">
+            <div style="display: flex; width: 40%; text-align: right;">
               $${item.price}
             </div>
           </div>
@@ -125,27 +126,56 @@ export default {
           <br>
           <br>
           <div style="display: flex;">
-            <div style="display: flex; width: 70%; text-align: right;">
+            <div style="display: flex; width: 70%; text-align: left;">
               Total:
             </div>
-            <div style="display: flex; width: 30%; text-align: left;">
+            <div style="display: flex; width: 30%; text-align: right;">
               ${formatter.formatPrice(totalCost)}
             </div>
           </div>
       `;
       receipt.innerHTML += html;
+
+      const dateOptions = {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+      };
+
+      const date = new Date().toLocaleString(undefined, dateOptions);
+
+      const dateHtml = `
+          <div style="display: flex;">
+            <div style="display: flex; width: 20%; text-align: left;">
+              Date:
+            </div>
+            <div style="display: flex; width: 80%; text-align: left;">
+              ${date}
+            </div>
+          </div>
+      `;
+      receipt.innerHTML += dateHtml;
       return receipt;
     },
     getReceiptPlainText() {
-      let receipt = `Thank You For Shopping at ${localStorage.getItem('name')}\nHere is your receipt:\n`;
+      let receipt = `Thank You For Shopping at ${localStorage.getItem('name')}\nHere is your receipt:\n\n`;
       let totalCost = 0;
       this.currentItems.forEach((item) => {
         totalCost += +item.price;
         receipt += `${formatter.formatStringForReceipt(item.name, item.price)}\n`;
       });
 
-      const text = `\n\n\n${formatter.formatStringForReceipt('Total:', totalCost)}`;
+      const text = `\n\n${formatter.formatStringForReceipt('Total:', totalCost)}`;
       receipt += text;
+
+      const dateOptions = {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+      };
+
+      const date = new Date().toLocaleString(undefined, dateOptions);
+
+      const dateText = `\n\nDate:  ${date}`;
+
+      receipt += dateText;
+
       console.log('RECEIPT', receipt);
       return receipt;
     },
