@@ -1,59 +1,80 @@
 <template>
   <v-container>
-    <v-simple-table fixed-header height="100vh">
-      <template v-slot:default>
-        <thead>
-          <tr>
-            <th class="text-left">Name</th>
-            <th class="text-left">Price</th>
-            <th class="text-left">Add to print</th>
-            <th class="text-left">Remove from print</th>
-            <th class="text-left">Number to print</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in items" :key="item.barcodeId" @click="editItem(item)">
-            <td>{{ item.name }}</td>
-            <td>{{ formatter.formatPrice(item.price) }}</td>
-            <td>
-              <v-btn icon small @click.stop="addToPrint(item)">
-                <v-icon>
-                  mdi-plus
-                </v-icon>
-              </v-btn>
-            </td>
-            <td>
-              <v-btn
-                icon
-                small
-                @click.stop="removeFromPrint(item)"
-              >
-                <v-icon>
-                  mdi-minus
-                </v-icon>
-              </v-btn>
-            </td>
-            <td>
-              {{countPrint(item)}}
-            </td>
-          </tr>
-          <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td>
-              <v-btn icon small @click.stop="createItem()">
-                <v-icon>
-                  mdi-plus
-                </v-icon>
-              </v-btn>
-            </td>
-          </tr>
+    <v-row>
+      <v-col cols="12">
+        <v-simple-table fixed-header height="75vh">
+          <template v-slot:default>
+            <thead>
+              <tr>
+                <th class="text-left">Name</th>
+                <th class="text-left">Price</th>
+                <th class="text-left">Add to print</th>
+                <th class="text-left">Remove from print</th>
+                <th class="text-left">Number to print</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in items" :key="item.barcodeId" @click="editItem(item)">
+                <td>{{ item.name }}</td>
+                <td>{{ formatter.formatPrice(item.price) }}</td>
+                <td>
+                  <v-btn icon small @click.stop="addToPrint(item)">
+                    <v-icon>
+                      mdi-plus
+                    </v-icon>
+                  </v-btn>
+                </td>
+                <td>
+                  <v-btn
+                    icon
+                    small
+                    @click.stop="removeFromPrint(item)"
+                  >
+                    <v-icon>
+                      mdi-minus
+                    </v-icon>
+                  </v-btn>
+                </td>
+                <td>
+                  {{countPrint(item)}}
+                </td>
+              </tr>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>
+                  <v-btn icon small @click.stop="createItem()">
+                    <v-icon>
+                      mdi-plus
+                    </v-icon>
+                  </v-btn>
+                </td>
+              </tr>
 
-        </tbody>
-      </template>
-    </v-simple-table>
+            </tbody>
+          </template>
+        </v-simple-table>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="2">
+        <v-btn block outlined @click="copyId()">
+          Create Id
+        </v-btn>
+      </v-col>
+      <v-col cols="2">
+        <v-btn block outlined @click="enterId()">
+          Enter Id
+        </v-btn>
+      </v-col>
+      <v-col cols="2">
+        <v-btn block outlined @click="printBarcodes()">
+          Print all
+        </v-btn>
+      </v-col>
+    </v-row>
     <edit-item-dialog
       v-model="editItemDialogOpen"
       :create="itemCreate"
@@ -61,15 +82,6 @@
       @delete="deleteItem"
       @itemUpdate="itemUpdated"
     />
-    <v-btn @click="copyId()">
-      Create Id
-    </v-btn>
-    <v-btn @click="enterId()">
-      Enter Id
-    </v-btn>
-    <v-btn @click="printBarcodes()">
-      Print all
-    </v-btn>
   </v-container>
 </template>
 <script>

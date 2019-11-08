@@ -25,12 +25,21 @@
       </v-container>
     </v-row>
     <v-row>
-      <v-btn @click="print">
-        Print receipt
-      </v-btn>
-      <v-btn @click="email">
-        Email receipt
-      </v-btn>
+      <v-col cols="2">
+        <v-btn block outlined color="success" @click="print">
+          Print receipt
+        </v-btn>
+      </v-col>
+      <v-col cols="2">
+        <v-btn block outlined color="success" @click="email">
+          Email receipt
+        </v-btn>
+      </v-col>
+      <v-col cols="2">
+        <v-btn block outlined color="error" @click="cancel">
+          Cancel
+        </v-btn>
+      </v-col>
     </v-row>
   </v-container>
 </template>
@@ -87,6 +96,10 @@ export default {
       this.$emit('finish', this.currentItems);
     },
 
+    cancel() {
+      this.currentItems = [];
+      this.finish();
+    },
 
     print() {
       this.finish();
