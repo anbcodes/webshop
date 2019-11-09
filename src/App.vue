@@ -1,25 +1,30 @@
 <template>
   <v-app>
-    <v-container fluid>
-      <v-row>
-        <v-col cols="12">
-          <inventory v-if="page === 'table'" />
-          <scan-items ref="scan" v-if="page === 'scan'" @finish="onScanFinish"/>
-        </v-col>
-      </v-row>
-      <v-row v-if="page === 'table'">
-        <v-col cols="2">
-          <v-btn outlined block @click="setStoreName()">
-            Set store name
-          </v-btn>
-        </v-col>
-        <v-col cols="2">
-          <v-btn outlined block @click="startItems()">
-            Scan Items
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
+    <v-app-bar app>
+      <v-img contain height="50" src="./assets/logo.png" lazy-src="./assets/logo.png" />
+    </v-app-bar>
+    <v-content>
+      <v-container fluid>
+        <v-row>
+          <v-col cols="12">
+            <inventory v-if="page === 'table'" />
+            <scan-items ref="scan" v-if="page === 'scan'" @finish="onScanFinish"/>
+          </v-col>
+        </v-row>
+        <v-row v-if="page === 'table'">
+          <v-col cols="2">
+            <v-btn outlined block @click="setStoreName()">
+              Set store name
+            </v-btn>
+          </v-col>
+          <v-col cols="2">
+            <v-btn outlined block @click="startItems()">
+              Scan Items
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-content>
   </v-app>
 </template>
 
