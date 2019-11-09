@@ -47,7 +47,7 @@
 import Table from '../util/Table';
 import Scanner from '../util/Scanner';
 import formatter from '../util/Formatter';
-import print from '../util/Print';
+import print from '../util/PrintHTML';
 
 export default {
   data: () => ({

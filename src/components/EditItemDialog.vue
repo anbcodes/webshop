@@ -51,6 +51,7 @@
 </template>
 <script>
 import Table from '../util/Table';
+import Barcodes from '../util/Barcodes';
 
 export default {
   props: {
@@ -81,6 +82,7 @@ export default {
         if (this.create) {
           await Table.addItem(this.itemCopy);
         } else {
+          Barcodes.barcodes = [];
           await Table.editItem(this.itemCopy);
         }
       }
