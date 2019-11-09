@@ -18,9 +18,6 @@
                 v-for="item in items"
                 :key="item.barcodeId"
                 :item="item"
-                :numberInPrint="countPrint(item)"
-                @addPrint="addToPrint"
-                @removePrint="removeFromPrint"
               />
             </tbody>
             <v-container>
@@ -46,7 +43,7 @@
         </v-btn>
       </v-col>
       <v-col cols="2">
-        <v-btn block outlined @click="printBarcodes()">
+        <v-btn :loading="printing" block outlined @click="printBarcodes()">
           Print all
         </v-btn>
       </v-col>
@@ -59,14 +56,12 @@
   </v-container>
 </template>
 <script>
-import JsBarcode from 'jsbarcode';
-
 import InventoryItem from './InventoryItem.vue';
 import EditItemDialog from './EditItemDialog.vue';
 
 import Table from '../util/Table';
-import print from '../util/Print';
 import formatter from '../util/Formatter';
+import Barcodes from '../util/Barcodes';
 
 export default {
   components: {
@@ -78,9 +73,11 @@ export default {
     currentItem: null,
     editItemDialogOpen: false,
     itemCreate: false,
-    Table,
-    itemsToPrint: [],
+    printing: false,
+
     formatter,
+    Table,
+    Barcodes,
   }),
   async created() {
     this.$bus.$on('TableUpdate', (items) => { this.items = items; });
@@ -90,30 +87,6 @@ export default {
     }, 2000);
   },
   methods: {
-    // async itemUpdated(item) {
-    //   this.itemsToPrint = [];
-    //   console.log('ITEMS', this.items);
-    //   console.log('item', item);
-    //   if (item.create) {
-    //     let lastId = Math.max(...this.items.map(v => v.barcodeId));
-    //     if (lastId === -Infinity) {
-    //       lastId = -1;
-    //     }
-    //     console.log('create item:', { ...item.item, barcodeId: lastId + 1 });
-    //     this.items.push({ ...item.item, barcodeId: lastId + 1 });
-    //   } else {
-    //     this.items.forEach((v, i) => {
-    //       console.log('looking for item', v.barcodeId, item.item.barcodeId);
-    //       if (v.barcodeId === item.item.barcodeId) {
-    //         this.items[i] = item.item;
-    //         console.log('found!');
-    //       }
-    //     });
-    //   }
-    //   await this.table.set(this.items);
-    //   this.items = await this.table.get();
-    // },
-
     createItem() {
       this.currentItem = {
         name: '',
@@ -140,61 +113,16 @@ export default {
         if (yes) {
           this.items = JSON.parse(text);
           await Table.erase();
-          await (Table.items = this.items);
+          await (Table.db.items = this.items);
         }
       }
       this.items = await Table.items;
     },
 
-    removeFromPrint(item) {
-      if (this.itemsToPrint.indexOf(item) !== -1) {
-        this.itemsToPrint.splice(this.itemsToPrint.indexOf(item), 1);
-      }
-      this.$forceUpdate();
-    },
-
-    addToPrint(item) {
-      this.itemsToPrint.push(item);
-    },
-
-    countPrint(item) {
-      let count = 0;
-      this.itemsToPrint.forEach((i) => {
-        if (i === item) {
-          count += 1;
-        }
-      });
-      return count;
-    },
-
-    printBarcodes() {
-      const items = this.itemsToPrint.map((item) => {
-        const div = document.createElement('div');
-        div.style.border = '2px dotted grey';
-        const price = document.createElement('div');
-        price.style.width = '1.2in';
-        price.style.textOverflow = 'wrap';
-        price.style.textAlign = 'center';
-
-        price.innerHTML = `${item.name} ($${item.price})`;
-        const img = document.createElement('img');
-        JsBarcode(img, item.barcodeId.toString(36), {
-          displayValue: false,
-        });
-        div.appendChild(img);
-        div.appendChild(price);
-        return div;
-      });
-      const div = document.createElement('div');
-      div.style.display = 'flex';
-      div.style.flexWrap = 'wrap';
-      div.style.flexDirection = 'row';
-      div.style.width = '8.5in';
-      div.style.textOverflow = 'wrap';
-      items.forEach((item) => {
-        div.appendChild(item);
-      });
-      print(div);
+    async printBarcodes() {
+      this.printing = true;
+      await Barcodes.print();
+      this.printing = false;
     },
   },
   watch: {

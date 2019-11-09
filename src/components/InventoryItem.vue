@@ -3,16 +3,16 @@
     <td>{{ item.name }}</td>
     <td>{{ formatter.formatPrice(item.price) }}</td>
     <td>
-      <v-btn icon @click.stop="$emit('addPrint', item)">
+      <v-btn icon @click.stop="Barcodes.add(item)">
         <v-icon>mdi-plus</v-icon>
       </v-btn>
     </td>
     <td>
-      <v-btn icon @click.stop="$emit('removePrint', item)">
+      <v-btn icon @click.stop="Barcodes.remove(item)">
         <v-icon>mdi-minus</v-icon>
       </v-btn>
     </td>
-    <td>{{numberInPrint}}</td>
+    <td>{{Barcodes.count(item)}}</td>
     <edit-item-dialog
       v-model="editItemDialogOpen"
       :create="false"
@@ -21,6 +21,7 @@
   </tr>
 </template>
 <script>
+import Barcodes from '../util/Barcodes';
 import formatter from '../util/Formatter';
 import EditItemDialog from './EditItemDialog.vue';
 
@@ -29,11 +30,11 @@ export default {
     'edit-item-dialog': EditItemDialog,
   },
   props: {
-    numberInPrint: Number,
     item: null,
   },
   data: () => ({
     formatter,
+    Barcodes,
     editItemDialogOpen: false,
   }),
   methods: {
