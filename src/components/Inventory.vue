@@ -14,46 +14,22 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in items" :key="item.barcodeId" @click="editItem(item)">
-                <td>{{ item.name }}</td>
-                <td>{{ formatter.formatPrice(item.price) }}</td>
-                <td>
-                  <v-btn icon small @click.stop="addToPrint(item)">
-                    <v-icon>
-                      mdi-plus
-                    </v-icon>
-                  </v-btn>
-                </td>
-                <td>
-                  <v-btn
-                    icon
-                    small
-                    @click.stop="removeFromPrint(item)"
-                  >
-                    <v-icon>
-                      mdi-minus
-                    </v-icon>
-                  </v-btn>
-                </td>
-                <td>
-                  {{countPrint(item)}}
-                </td>
-              </tr>
-              <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td>
-                  <v-btn icon small @click.stop="createItem()">
-                    <v-icon>
-                      mdi-plus
-                    </v-icon>
-                  </v-btn>
-                </td>
-              </tr>
-
+              <inventory-item
+                v-for="item in items"
+                :key="item.barcodeId"
+                :item="item"
+                :numberInPrint="countPrint(item)"
+                @addPrint="addToPrint"
+                @removePrint="removeFromPrint"
+              />
             </tbody>
+            <v-container>
+              <v-btn icon @click.stop="createItem()">
+                <v-icon>
+                  mdi-plus
+                </v-icon>
+              </v-btn>
+            </v-container>
           </template>
         </v-simple-table>
       </v-col>
@@ -77,73 +53,66 @@
     </v-row>
     <edit-item-dialog
       v-model="editItemDialogOpen"
-      :create="itemCreate"
+      :create="true"
       :item="currentItem"
-      @delete="deleteItem"
-      @itemUpdate="itemUpdated"
     />
   </v-container>
 </template>
 <script>
 import JsBarcode from 'jsbarcode';
 
-import Table from '../util/Table';
+import InventoryItem from './InventoryItem.vue';
 import EditItemDialog from './EditItemDialog.vue';
+
+import Table from '../util/Table';
 import print from '../util/Print';
 import formatter from '../util/Formatter';
 
 export default {
   components: {
     'edit-item-dialog': EditItemDialog,
+    'inventory-item': InventoryItem,
   },
   data: () => ({
     items: [],
     currentItem: null,
     editItemDialogOpen: false,
     itemCreate: false,
-    table: new Table(),
+    Table,
     itemsToPrint: [],
     formatter,
   }),
-  async mounted() {
-    this.items = (await this.table.get()) || [];
+  async created() {
+    this.$bus.$on('TableUpdate', (items) => { this.items = items; });
+    setTimeout(async () => {
+      this.items = await (Table.items);
+      console.log('Items', this.items, await (Table.items));
+    }, 2000);
   },
-
   methods: {
-    async deleteItem(item) {
-      this.items.forEach((v, i) => {
-        console.log('looking for item', v.barcodeId, item.barcodeId);
-        if (v.barcodeId === item.barcodeId) {
-          this.items.splice(i, 1);
-          console.log('found!');
-        }
-      });
-      await this.table.set(this.items);
-      this.items = await this.table.get();
-    },
-    async itemUpdated(item) {
-      this.itemsToPrint = [];
-      console.log('ITEMS', this.items);
-      console.log('item', item);
-      if (item.create) {
-        let lastId = Math.max(...this.items.map(v => v.barcodeId));
-        if (lastId === -Infinity) {
-          lastId = -1;
-        }
-        console.log('create item:', { ...item.item, barcodeId: lastId + 1 });
-        this.items.push({ ...item.item, barcodeId: lastId + 1 });
-      } else {
-        this.items.forEach((v, i) => {
-          console.log('looking for item', v.barcodeId, item.item.barcodeId);
-          if (v.barcodeId === item.item.barcodeId) {
-            this.items[i] = item.item;
-            console.log('found!');
-          }
-        });
-      }
-      await this.table.set(this.items);
-      this.items = await this.table.get();
-    },
+    // async itemUpdated(item) {
+    //   this.itemsToPrint = [];
+    //   console.log('ITEMS', this.items);
+    //   console.log('item', item);
+    //   if (item.create) {
+    //     let lastId = Math.max(...this.items.map(v => v.barcodeId));
+    //     if (lastId === -Infinity) {
+    //       lastId = -1;
+    //     }
+    //     console.log('create item:', { ...item.item, barcodeId: lastId + 1 });
+    //     this.items.push({ ...item.item, barcodeId: lastId + 1 });
+    //   } else {
+    //     this.items.forEach((v, i) => {
+    //       console.log('looking for item', v.barcodeId, item.item.barcodeId);
+    //       if (v.barcodeId === item.item.barcodeId) {
+    //         this.items[i] = item.item;
+    //         console.log('found!');
+    //       }
+    //     });
+    //   }
+    //   await this.table.set(this.items);
+    //   this.items = await this.table.get();
+    // },
 
     createItem() {
       this.currentItem = {
@@ -154,15 +123,9 @@ export default {
       this.editItemDialogOpen = true;
     },
 
-    editItem(item) {
-      this.currentItem = item;
-      this.itemCreate = false;
-      this.editItemDialogOpen = true;
-    },
-
-    copyId() {
+    async copyId() {
       const textArea = document.createElement('textarea');
-      textArea.value = JSON.stringify(this.items);
+      textArea.value = JSON.stringify(await Table.items);
       document.body.appendChild(textArea);
       textArea.select();
       document.execCommand('copy');
@@ -173,14 +136,14 @@ export default {
     async enterId() {
       const text = window.prompt('Id:');
       if (text && text !== '') {
-        const yes = window.confirm('Deleting all current Items');
+        const yes = window.confirm('The will delete all current Items');
         if (yes) {
           this.items = JSON.parse(text);
+          await Table.erase();
+          await (Table.items = this.items);
         }
       }
-      await this.table.erase();
-      await this.table.set(this.items);
-      this.items = await this.table.get(this.items);
+      this.items = await Table.items;
     },
 
     removeFromPrint(item) {
@@ -232,6 +195,15 @@ export default {
         div.appendChild(item);
       });
       print(div);
+    },
+  },
+  watch: {
+    'Table.items': {
+      async handler() {
+        this.items = await Table.items;
+      },
+      immediate: true,
+      deep: true,
     },
   },
 };
