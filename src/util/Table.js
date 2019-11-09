@@ -1,62 +1,44 @@
-import Dexie from 'dexie';
+import Database from './Database';
 
 export default {
   db: null,
-  init(onChange) {
-    this.onChange = onChange;
-    this.db = new Dexie('webshopTable');
-    this.db.version(1).stores({
-      data: 'id++,data',
-    });
-    return this.items;
+  init(onUpdate) {
+    this.db = new Database('WebShopTable', onUpdate);
   },
 
   get items() {
-    return (async () => {
-      const data = await this.db.data.toArray();
-      console.log('DATA', data);
-      return data[0] || [];
-    })();
+    return this.db.items;
   },
 
   async erase() {
-    await this.db.data.clear();
-  },
-
-  set items(data) {
-    return (async () => {
-      await this.erase();
-      await this.db.data.put(data);
-      this.onChange(data);
-      return data;
-    })();
+    await this.db.erase();
   },
 
   async addItem(item) {
-    console.log((await this.items), this);
-    const items = [...(await this.items)];
+    console.log((await this.db.items), this);
+    const items = [...(await this.db.items)];
     const itemCopy = { ...item };
     const nextBarcodeId = Math.max(...items.map(v => v.barcodeId));
     itemCopy.barcodeId = nextBarcodeId === -Infinity ? 0 : nextBarcodeId;
     console.log('adding Items', items, itemCopy);
 
     items.push(itemCopy);
-    await (this.items = items);
+    await (this.db.items = items);
   },
 
   async removeItem(item) {
     console.log('removing item', item);
-    let items = [...(await this.items)];
+    let items = [...(await this.db.items)];
     delete items[items
       .map(v => v.barcodeId)
       .indexOf(item.barcodeId)
     ];
     items = items.filter(v => v);
-    await (this.items = items);
+    await (this.db.items = items);
   },
 
   async editItem(item) {
-    const items = [...(await this.items)];
+    const items = [...(await this.db.items)];
     console.log('ITEMS', items);
     const index = items
       .map(v => v.barcodeId)
@@ -67,7 +49,7 @@ export default {
     }
     items[index] = item;
     items.filter(v => v);
-    await (this.items = items);
+    await (this.db.items = items);
     return item;
   },
 };
