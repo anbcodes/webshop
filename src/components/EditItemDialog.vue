@@ -33,7 +33,7 @@
                 v-if="!create"
                 outlined
                 color="error"
-                @click="$emit('delete', item); $emit('input', false)"
+                @click="Table.removeItem(item); $emit('input', false)"
               >
                 Delete
               </v-btn>
@@ -50,6 +50,8 @@
   </v-dialog>
 </template>
 <script>
+import Table from '../util/Table';
+
 export default {
   props: {
     create: Boolean,
@@ -58,6 +60,7 @@ export default {
   },
   data: () => ({
     itemCopy: {},
+    Table,
   }),
 
   watch: {
@@ -73,9 +76,13 @@ export default {
   },
 
   methods: {
-    close(save) {
+    async close(save) {
       if (save) {
-        this.$emit('itemUpdate', { item: this.itemCopy, create: this.create });
+        if (this.create) {
+          await Table.addItem(this.itemCopy);
+        } else {
+          await Table.editItem(this.itemCopy);
+        }
       }
       this.$emit('input', false);
     },

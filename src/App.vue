@@ -3,7 +3,7 @@
     <v-container fluid>
       <v-row>
         <v-col cols="12">
-          <my-table v-if="page === 'table'" />
+          <inventory v-if="page === 'table'" />
           <scan-items ref="scan" v-if="page === 'scan'" @finish="onScanFinish"/>
         </v-col>
       </v-row>
@@ -24,14 +24,14 @@
 </template>
 
 <script>
-import MyTable from './components/MyTable.vue';
+import Inventory from './components/Inventory.vue';
 import ScanItems from './components/ScanItems.vue';
 
 export default {
   name: 'App',
 
   components: {
-    'my-table': MyTable,
+    inventory: Inventory,
     'scan-items': ScanItems,
   },
   mounted() {
