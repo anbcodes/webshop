@@ -1,16 +1,29 @@
 import Database from './Database';
+import Log from './Log';
 
 export default {
   db: null,
+  sortBy: null,
+  sortUp: null,
   init(onUpdate) {
+    Log('Initing table', { onUpdate, __filename });
+    this.onUpdate = onUpdate;
     this.db = new Database('WebShopTable', onUpdate);
   },
 
   get items() {
-    return this.db.items;
+    Log('Getting items', {
+      items: this.db.items,
+      sorted: this.sortItems(this.db.items),
+      __filename,
+    });
+    return this.sortItems(this.db.items);
   },
 
   async erase() {
+    Log('Erasing items', {
+      __filename,
+    });
     await this.db.erase();
   },
 
@@ -51,5 +64,36 @@ export default {
     items.filter(v => v);
     await (this.db.items = items);
     return item;
+  },
+
+  async sortItems(itemsPromise) {
+    const items = await itemsPromise;
+    items.sort((a, b) => {
+      if (a[this.sortBy] > b[this.sortBy]) {
+        return this.sortUp ? 1 : -1;
+      }
+
+      if (a[this.sortBy] < b[this.sortBy]) {
+        return this.sortUp ? -1 : 1;
+      }
+
+      return 0;
+    });
+    return items;
+  },
+
+  async updateSort(name) {
+    Log('updating sort', {
+      sortBy: this.sortBy,
+      sortUp: this.sortUp,
+      name,
+      __filename,
+    });
+    if (this.sortBy === name) {
+      this.sortUp = !this.sortUp;
+    } else {
+      this.sortBy = name;
+    }
+    this.onUpdate(await this.items);
   },
 };
