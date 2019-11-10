@@ -132,7 +132,13 @@ export default {
       this.finish();
       const text = this.receipt.getEmailText();
       const link = document.createElement('a');
-      const email = window.prompt('Enter email');
+      let email = '';
+      while (email === '' && email !== 'cancel') {
+        email = window.prompt("Enter email or type 'cancel' to cancel");
+      }
+      if (email === 'cancel') {
+        return;
+      }
       link.href = `mailto:${email}?subject=Receipt from ${localStorage.getItem('name')}&body=${encodeURIComponent(text)}`;
       document.body.appendChild(link);
       link.click();
