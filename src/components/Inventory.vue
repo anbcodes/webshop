@@ -16,14 +16,14 @@
             <thead>
               <tr>
                 <th class="text-left"
-                  @click="nameSortUp = !nameSortUp; sortByName = true; updateSort()"
+                  @click="Table.updateSort('name')"
                 >
-                  Name {{nameSortUp ? '▲' : '▼'}}
+                  Name {{Table.sortBy === 'name' ? (Table.sortUp ? '▲' : '▼') : ''}}
                 </th>
                 <th class="text-left"
-                  @click="priceSortUp = !priceSortUp; sortByName = false; updateSort()"
+                  @click="Table.updateSort('price')"
                 >
-                  Price {{priceSortUp ? '▲' : '▼'}}
+                  Price {{Table.sortBy === 'price' ? (Table.sortUp ? '▲' : '▼') : ''}}
                 </th>
                 <th class="text-left">Add to print</th>
                 <th class="text-left">Remove from print</th>
@@ -94,9 +94,6 @@ export default {
     itemCreate: false,
     printing: false,
     searchTable: '',
-    priceSortUp: false,
-    nameSortUp: false,
-    sortByName: true,
 
     formatter,
     Table,
@@ -110,34 +107,6 @@ export default {
     }, 2000);
   },
   methods: {
-    updateSort() {
-      console.log('Updating sort', this.sortByName, this.nameSortUp, this.priceSortUp);
-      if (this.sortByName) {
-        this.items.sort((v1, v2) => {
-          if (v1.name > v2.name) {
-            return this.nameSortUp ? 1 : -1;
-          }
-
-          if (v1.name < v2.name) {
-            return this.nameSortUp ? -1 : 1;
-          }
-          return 0;
-        });
-      } else {
-        this.items.sort((v1, v2) => {
-          if (+v1.price > +v2.price) {
-            return this.priceSortUp ? 1 : -1;
-          }
-
-          if (+v1.price < +v2.price) {
-            return this.priceSortUp ? -1 : 1;
-          }
-
-          return 0;
-        });
-      }
-    },
-
     includeItem(item) {
       return (item.name.toLowerCase() + formatter.formatPrice(item.price))
         .includes(this.searchTable.toLowerCase());
@@ -184,7 +153,6 @@ export default {
     'Table.items': {
       async handler() {
         this.items = await Table.items;
-        this.updateSort();
       },
       immediate: true,
       deep: true,

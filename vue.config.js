@@ -4,6 +4,11 @@ const config = {
   transpileDependencies: [
     'vuetify',
   ],
+  configureWebpack: {
+    node: {
+      __filename: true,
+    },
+  }
 };
 
 config.chainWebpack = config => {
