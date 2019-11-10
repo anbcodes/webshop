@@ -1,24 +1,43 @@
 <template>
   <v-container>
     <v-row>
+      <span class="title">Inventory</span>
+      <v-spacer></v-spacer>
+      <v-text-field
+        v-model="searchTable"
+        append-icon="mdi-search"
+        label="Search"
+        single-line
+        hide-details
+      ></v-text-field>
       <v-col cols="12">
         <v-simple-table fixed-header height="75vh">
           <template v-slot:default>
             <thead>
               <tr>
-                <th class="text-left">Name</th>
-                <th class="text-left">Price</th>
+                <th class="text-left"
+                  @click="nameSortUp = !nameSortUp; sortByName = true; updateSort()"
+                >
+                  Name {{nameSortUp ? '▲' : '▼'}}
+                </th>
+                <th class="text-left"
+                  @click="priceSortUp = !priceSortUp; sortByName = false; updateSort()"
+                >
+                  Price {{priceSortUp ? '▲' : '▼'}}
+                </th>
                 <th class="text-left">Add to print</th>
                 <th class="text-left">Remove from print</th>
                 <th class="text-left">Number to print</th>
               </tr>
             </thead>
             <tbody>
-              <inventory-item
-                v-for="item in items"
-                :key="item.barcodeId"
-                :item="item"
-              />
+              <template v-for="item in items">
+                <inventory-item
+                  v-if="includeItem(item)"
+                  :key="item.barcodeId"
+                  :item="item"
+                />
+              </template>
             </tbody>
             <v-container>
               <v-btn icon @click.stop="createItem()">
@@ -74,6 +93,10 @@ export default {
     editItemDialogOpen: false,
     itemCreate: false,
     printing: false,
+    searchTable: '',
+    priceSortUp: false,
+    nameSortUp: false,
+    sortByName: true,
 
     formatter,
     Table,
@@ -87,6 +110,38 @@ export default {
     }, 2000);
   },
   methods: {
+    updateSort() {
+      console.log('Updating sort', this.sortByName, this.nameSortUp, this.priceSortUp);
+      if (this.sortByName) {
+        this.items.sort((v1, v2) => {
+          if (v1.name > v2.name) {
+            return this.nameSortUp ? 1 : -1;
+          }
+
+          if (v1.name < v2.name) {
+            return this.nameSortUp ? -1 : 1;
+          }
+          return 0;
+        });
+      } else {
+        this.items.sort((v1, v2) => {
+          if (+v1.price > +v2.price) {
+            return this.priceSortUp ? 1 : -1;
+          }
+
+          if (+v1.price < +v2.price) {
+            return this.priceSortUp ? -1 : 1;
+          }
+
+          return 0;
+        });
+      }
+    },
+
+    includeItem(item) {
+      return (item.name.toLowerCase() + formatter.formatPrice(item.price))
+        .includes(this.searchTable.toLowerCase());
+    },
     createItem() {
       this.currentItem = {
         name: '',
@@ -129,6 +184,7 @@ export default {
     'Table.items': {
       async handler() {
         this.items = await Table.items;
+        this.updateSort();
       },
       immediate: true,
       deep: true,
