@@ -2,12 +2,13 @@ let currentLog = JSON.parse(localStorage.getItem('log') || '[]');
 let currentLogLevels = JSON.parse(localStorage.getItem('logLevels') || '[]');
 
 function Log(filename, name, vars, spam) {
+  const shortFilename = filename.split('?')[0];
   if (currentLogLevels.indexOf('spam') === -1 && spam) {
     return;
   }
-  if (currentLog[0] === 'all' || currentLog.indexOf(filename) !== -1) {
-    console.groupCollapsed(`${name} (${filename})`);
-    Object.keys(vars).forEach(v => console.log(`${v}:`, vars[v]));
+  if (currentLog[0] === 'all' || currentLog.indexOf(shortFilename) !== -1) {
+    console.groupCollapsed(`${name} (${shortFilename})`);
+    Object.keys(vars || {}).forEach(v => console.log(`${v}:`, vars[v]));
     console.groupEnd();
   }
 }
