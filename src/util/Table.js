@@ -8,21 +8,18 @@ export default {
   init(onUpdate) {
     this.onUpdate = onUpdate;
     this.db = new Database('WebShopTable', onUpdate);
-    Log('Inited table', { db: this.db, onUpdate, __filename });
+    Log(__filename, 'Inited table', { db: this.db, onUpdate });
   },
 
   async erase() {
-    Log('Erasing items', {
-      __filename,
-    });
+    Log(__filename, 'Erasing items');
     await this.db.erase();
   },
 
   get items() {
-    Log('Getting items', {
+    Log(__filename, 'Getting items', {
       items: this.db.items,
       sorted: this.sortItems(this.db.items),
-      __filename,
     });
     return this.sortItems(this.db.items);
   },
@@ -41,12 +38,11 @@ export default {
 
       return 0;
     });
-    Log('Sorted Items', {
+    Log(__filename, 'Sorted Items', {
       items,
       originalItems,
       sortUp: this.sortUp,
       sortBy: this.sortBy,
-      __filename,
     });
     return items;
   },
@@ -58,7 +54,7 @@ export default {
     itemCopy.barcodeId = nextBarcodeId === -Infinity ? 0 : nextBarcodeId;
     items.push(itemCopy);
     await (this.db.items = items);
-    Log('Added Item', { items, itemCopy });
+    Log(__filename, 'Added Item', { items, itemCopy });
   },
 
   async removeItem(item) {
@@ -69,7 +65,7 @@ export default {
     ];
     items = items.filter(v => v);
     await (this.db.items = items);
-    Log('Removed item', { item, items });
+    Log(__filename, 'Removed item', { item, items });
   },
 
   async editItem(item) {
@@ -78,19 +74,18 @@ export default {
       .map(v => v.barcodeId)
       .indexOf(item.barcodeId);
     if (index === -1) {
-      Log('Item Not Found', {
-        index, items, item, __filename,
+      Log(__filename, 'Item Not Found', {
+        index, items, item,
       });
       return 'Item Not Found';
     }
     items[index] = item;
     items.filter(v => v);
     await (this.db.items = items);
-    Log('Edited Item', {
+    Log(__filename, 'Edited Item', {
       item,
       index,
       items,
-      __filename,
     });
     return item;
   },
@@ -102,11 +97,10 @@ export default {
       this.sortBy = name;
     }
     this.onUpdate(await this.items);
-    Log('updated sort', {
+    Log(__filename, 'updated sort', {
       sortBy: this.sortBy,
       sortUp: this.sortUp,
       name,
-      __filename,
     });
   },
 };
