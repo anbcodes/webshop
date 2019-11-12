@@ -52,6 +52,7 @@
 <script>
 import Table from '../util/Table';
 import Barcodes from '../util/Barcodes';
+import Log from '../util/Log';
 
 export default {
   props: {
@@ -69,6 +70,7 @@ export default {
       handler() {
         if (this.item) {
           this.itemCopy = { ...this.item };
+          Log(__filename, 'Item changed. Copying', { item: this.item, copy: this.itemCopy });
         }
       },
       immediate: true,
@@ -81,11 +83,14 @@ export default {
       if (save) {
         if (this.create) {
           await Table.addItem(this.itemCopy);
+          Log(__filename, 'Creating Item', { item: this.itemCopy });
         } else {
           Barcodes.barcodes = [];
           await Table.editItem(this.itemCopy);
+          Log(__filename, 'Editing Item and setting barcodes to []', { item: this.itemCopy });
         }
       }
+      Log(__filename, 'Closing edit item dialog', { save });
       this.$emit('input', false);
     },
   },
