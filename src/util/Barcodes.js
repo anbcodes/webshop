@@ -1,12 +1,14 @@
 import JsBarcode from 'jsbarcode';
 
 import printHtml from './PrintHTML';
+import Log from './Log';
 
 export default {
   barcodes: [],
 
   add(item) {
     this.barcodes.push(item);
+    Log(__filename, 'Added item to barcodes', { item, barcodes: this.barcodes });
   },
 
   remove(item) {
@@ -15,7 +17,7 @@ export default {
       .indexOf(item.barcodeId);
 
     if (index === -1) {
-      console.log('Item Not found');
+      Log(__filename, 'Item not found while removing item', { item, index, barcodes: this.barcodes });
       return 'not found';
     }
 
@@ -23,16 +25,20 @@ export default {
     this.barcodes = this.barcodes
       .filter(v => v);
 
+    Log(__filename, 'Removed item from barcodes', { item, index, barcodes: this.barcodes });
     return this.barcodes;
   },
 
   count(item) {
-    return this.barcodes
+    const number = this.barcodes
       .filter(v => v.barcodeId === item.barcodeId)
       .length;
+    Log(__filename, 'Counted items', { item, number, barcodes: this.barcodes });
+    return number;
   },
 
   async print() {
+    // TO-LONG
     const items = this.barcodes.map((item) => {
       const div = document.createElement('div');
       div.style.border = '2px dotted grey';
@@ -60,5 +66,6 @@ export default {
       div.appendChild(item);
     });
     await printHtml(div);
+    Log(__filename, 'Printed barcodes', { div, barcodes: this.barcodes });
   },
 };
