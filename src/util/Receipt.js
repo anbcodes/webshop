@@ -1,20 +1,31 @@
 import printHTML from './PrintHTML';
 import formatter from './Formatter';
+import Log from './Log';
 
 export default class Receipt {
   constructor(name) {
     this.name = name;
     this.id = +new Date();
     this.items = [];
+    this.Log('Created Receipt', { this: this });
+  }
+
+  Log(...args) {
+    Log(__filename, ...args);
   }
 
   add(item, number = 1) {
-    this.items.push({ ...item, number, id: +new Date() });
+    const itemToAdd = { ...item, number, id: +new Date() };
+    this.items.push(itemToAdd);
+    this.Log('Added item', {
+      item, number, itemToAdd, items: this.item,
+    });
   }
 
   remove(item) {
     this.items = this.items
       .filter(v => v.id !== item.id);
+    this.Log('Removed item', { item, items: this.items });
   }
 
   async print() {
@@ -74,12 +85,15 @@ export default class Receipt {
       textAlign: ['left', 'left'],
     });
     await printHTML(receipt);
+    this.Log('printed receipt', {
+      receipt, this: this, totalCost, date,
+    });
   }
 
   receiptRowHTML({
     row, width = ['60%', '40%'], textAlign = ['left', 'left'], wrap,
   }) {
-    return `
+    const rowHTML = `
       <div style="display: flex; margin-top: 0.07in;">
         <div style="display: flex; width: ${width[0]}; text-align: ${textAlign[0]}; ${wrap ? 'text-overflow: wrap;' : ''}">
           ${row[0]}
@@ -89,6 +103,10 @@ export default class Receipt {
         </div>
       </div>
     `;
+    this.Log('Creating receipt row', {
+      row, width, textAlign, wrap, rowHTML,
+    }, true);
+    return rowHTML;
   }
 
   getEmailText() {
@@ -122,7 +140,9 @@ export default class Receipt {
 
     receipt += `ID: ${this.id}`;
 
-    console.log('RECEIPT', receipt);
+    this.Log('Receipt text for email', {
+      receipt, this: this, totalCost, date,
+    });
     return receipt;
   }
 }
