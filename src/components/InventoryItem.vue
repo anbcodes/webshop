@@ -24,6 +24,7 @@
 import Barcodes from '../util/Barcodes';
 import formatter from '../util/Formatter';
 import EditItemDialog from './EditItemDialog.vue';
+import Log from '../util/Log';
 
 export default {
   components: {
@@ -39,6 +40,7 @@ export default {
   }),
   methods: {
     edit() {
+      Log(__filename, 'Editing item', { item: this.item });
       this.editItemDialogOpen = true;
     },
   },

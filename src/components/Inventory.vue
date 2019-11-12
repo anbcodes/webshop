@@ -81,6 +81,8 @@ import EditItemDialog from './EditItemDialog.vue';
 import Table from '../util/Table';
 import formatter from '../util/Formatter';
 import Barcodes from '../util/Barcodes';
+import Log from '../util/Log';
+
 
 export default {
   components: {
@@ -101,15 +103,17 @@ export default {
   }),
   async created() {
     this.$bus.$on('TableUpdate', (items) => { this.items = items; });
-    setTimeout(async () => {
-      this.items = await (Table.items);
-      console.log('Items', this.items, await (Table.items));
-    }, 2000);
+    this.items = await (Table.items);
+    Log(__filename, 'Inventory.vue created', { items: this.items, this: this });
   },
   methods: {
     includeItem(item) {
-      return (item.name.toLowerCase() + formatter.formatPrice(item.price))
+      const includes = (item.name.toLowerCase() + formatter.formatPrice(item.price))
         .includes(this.searchTable.toLowerCase());
+      Log(__filename, 'Checking if search contains item', {
+        item, includes, search: this.searchTable, items: this.items,
+      });
+      return includes;
     },
     createItem() {
       this.currentItem = {
@@ -118,6 +122,7 @@ export default {
       };
       this.itemCreate = true;
       this.editItemDialogOpen = true;
+      Log(__filename, 'Creating Item');
     },
 
     async copyId() {
@@ -127,7 +132,8 @@ export default {
       textArea.select();
       document.execCommand('copy');
       textArea.remove();
-      window.confirm('Id copied to clipboard');
+      window.alert('Id copied to clipboard');
+      Log(__filename, 'Copied ID', { textArea, ID: textArea.value });
     },
 
     async enterId() {
@@ -141,18 +147,21 @@ export default {
         }
       }
       this.items = await Table.items;
+      Log(__filename, 'Entered ID', { ID: text, items: this.items });
     },
 
     async printBarcodes() {
       this.printing = true;
       await Barcodes.print();
       this.printing = false;
+      Log(__filename, 'Printed barcodes');
     },
   },
   watch: {
     'Table.items': {
       async handler() {
         this.items = await Table.items;
+        Log(__filename, 'Table.items updated', { items: this.items }, true);
       },
       immediate: true,
       deep: true,
