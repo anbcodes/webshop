@@ -35,7 +35,7 @@ export default class Receipt {
     receipt.style.fontFamily = 'monospace';
     receipt.style.border = '2px solid grey';
     receipt.innerHTML = `<div style="text-align: center;">
-      Thank You For Shopping at<br>${localStorage.getItem('name')}
+      Thank You For Shopping at<br>${localStorage.getItem('name') || ''}
     </div><br><br><br>`;
     let totalCost = 0;
 
@@ -110,7 +110,7 @@ export default class Receipt {
   }
 
   getEmailText() {
-    let receipt = `Thank You For Shopping at ${localStorage.getItem('name')}\nHere is your receipt:\n\n`;
+    let receipt = `Thank You For Shopping at ${localStorage.getItem('name') || ''}\nHere is your receipt:\n\n`;
     let totalCost = 0;
     this.items.forEach((item) => {
       totalCost += +item.price * item.number;
