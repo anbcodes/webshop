@@ -148,7 +148,7 @@ export default {
         });
         return;
       }
-      link.href = `mailto:${email}?subject=Receipt from ${localStorage.getItem('name')}&body=${encodeURIComponent(text)}`;
+      link.href = `mailto:${email}?subject=Receipt from ${localStorage.getItem('name') || ''}&body=${encodeURIComponent(text)}`;
       document.body.appendChild(link);
       link.click();
       setTimeout(() => { link.remove(); }, 1000);
