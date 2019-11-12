@@ -1,4 +1,5 @@
 import Dexie from 'dexie';
+import Log from './Log';
 
 export default class {
   constructor(name, onUpdate) {
@@ -13,7 +14,7 @@ export default class {
   get items() {
     return (async () => {
       const data = await this.db.data.toArray();
-      console.log('DATA', data);
+      Log(__filename, 'Got data from database', { data, items: data[0] || [] });
       return data[0] || [];
     })();
   }
@@ -23,11 +24,13 @@ export default class {
       await this.erase();
       await this.db.data.put(value);
       this.onUpdate(value);
+      Log(__filename, 'Setted data into database', { value });
       return value;
     })();
   }
 
   async erase() {
+    Log(__filename, 'Clearing database');
     this.db.data.clear();
   }
 }
