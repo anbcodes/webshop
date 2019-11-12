@@ -1,3 +1,5 @@
+import Log from './Log';
+
 export default function print(element) {
   const iframe = document.createElement('iframe');
 
@@ -7,6 +9,7 @@ export default function print(element) {
 
       setTimeout(() => {
         iframe.contentWindow.focus();
+        Log(__filename, 'Printing HTML', { element, iframe });
         iframe.contentWindow.print();
 
         resolve();

@@ -1,9 +1,14 @@
+import Log from './Log';
+
 export default {
   formatPrice(number) {
-    return `$${parseFloat(number).toFixed(2)}`;
+    const formatted = `$${parseFloat(number).toFixed(2)}`;
+    Log(__filename, 'Formatted price', { number, formatted }, true);
+    return formatted;
   },
 
   formatStringForReceipt(str, price) {
+    // TO-LONG
     const strList = str.split(' ');
     let currentStr = '';
     const rows = [];
@@ -20,7 +25,9 @@ export default {
     const lastRow = rows.slice(-1)[0];
     const newLastRow = lastRow + ' '.repeat(40 - lastRow.length - this.formatPrice(price).length) + this.formatPrice(price);
     rows[rows.length - 1] = newLastRow;
-    console.log(rows, newLastRow);
+    Log(__filename, 'formated string for receipt', {
+      str, price, rows, newLastRow,
+    }, true);
     return rows.join('\n');
   },
 };
