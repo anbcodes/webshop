@@ -31,6 +31,7 @@
 <script>
 import Inventory from './components/Inventory.vue';
 import ScanItems from './components/ScanItems.vue';
+import Log from './util/Log';
 
 export default {
   name: 'App',
@@ -51,15 +52,18 @@ export default {
   methods: {
     onScanFinish() {
       this.page = 'table';
+      Log(__filename, 'Finished scanning');
     },
     async startItems() {
       this.page = 'scan';
       await this.$nextTick();
       this.$refs.scan.start();
+      Log(__filename, 'Started scanning');
     },
     setStoreName() {
       const name = prompt('What is the name of your store?');
       localStorage.setItem('name', name);
+      Log(__filename, 'Setted store name', { name });
     },
   },
 };
