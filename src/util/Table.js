@@ -1,13 +1,25 @@
 import Database from './Database';
 import Log from './Log';
+import Base from './Base';
 
 export default {
   db: null,
   sortBy: null,
   sortUp: null,
-  init(onUpdate) {
+  async init(onUpdate) {
     this.onUpdate = onUpdate;
-    this.db = new Database('WebShopTable', onUpdate);
+    this.old_db = new Database('webshopTable', onUpdate);
+    this.db = new Database('WebshopTableV2', onUpdate);
+    if ((await this.old_db.items).length > 0) {
+      window.alert('Migrating barcodes');
+
+      const items = await this.old_db.items;
+      for (let i = 0; i < items.length; i += 1) {
+        await this.addItem({ name: items[i].name, price: items[i].price });
+      }
+      Log(__filename, 'Migrated table', { old_db: this.old_db });
+      await this.old_db.erase();
+    }
     Log(__filename, 'Inited table', { db: this.db, onUpdate });
   },
 
@@ -50,8 +62,12 @@ export default {
   async addItem(item) {
     const items = [...(await this.db.items)];
     const itemCopy = { ...item };
-    const nextBarcodeId = Math.max(...items.map(v => v.barcodeId));
-    itemCopy.barcodeId = nextBarcodeId === -Infinity ? 0 : nextBarcodeId;
+    const prevBarcodeId = Math.max(...items.map(v => Base.from.b128(v.barcodeId)));
+    const barcodeId = Base.to.b128(+new Date()).slice(-4);
+    itemCopy.barcodeId = barcodeId !== Base.to.b128(prevBarcodeId)
+      ? barcodeId
+      : Base.to.b128(Base.from.b128(barcodeId) + 1);
+
     items.push(itemCopy);
     await (this.db.items = items);
     Log(__filename, 'Added Item', { items, itemCopy });
