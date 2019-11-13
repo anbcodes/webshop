@@ -141,9 +141,23 @@ export default {
       if (text && text !== '') {
         const yes = window.confirm('The will delete all current Items');
         if (yes) {
-          this.items = JSON.parse(text);
-          await Table.erase();
-          await (Table.db.items = this.items);
+          const items = JSON.parse(text);
+          if (items[0] && +items[0].barcodeId < 20000) {
+            if (window.confirm('We detected a old verison of barcodes. Would you like to migrate?')) {
+              await Table.erase();
+              for (let i = 0; i < items.length; i += 1) {
+                await Table.addItem({
+                  name: items[i].name,
+                  price: items[i].price,
+                });
+              }
+              Log(__filename, 'Converted old verison barcodes', { oldItems: items, newItems: await Table.items });
+              this.items = await Table.items;
+            }
+          } else {
+            await Table.erase();
+            await (Table.db.items = this.items);
+          }
         }
       }
       this.items = await Table.items;

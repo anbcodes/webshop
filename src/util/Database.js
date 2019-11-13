@@ -5,7 +5,7 @@ export default class {
   constructor(name, onUpdate) {
     this.name = name;
     this.onUpdate = onUpdate;
-    this.db = new Dexie('webshopTable');
+    this.db = new Dexie(name);
     this.db.version(1).stores({
       data: 'id++,data',
     });

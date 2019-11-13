@@ -43,13 +43,13 @@ export default {
       const div = document.createElement('div');
       div.style.border = '2px dotted grey';
       const price = document.createElement('div');
-      price.style.width = '1.2in';
+      price.style.width = '2.1in';
       price.style.textOverflow = 'wrap';
       price.style.textAlign = 'center';
 
       price.innerHTML = `${item.name} ($${item.price})`;
       const img = document.createElement('img');
-      JsBarcode(img, item.barcodeId.toString(36), {
+      JsBarcode(img, item.barcodeId, {
         displayValue: false,
       });
       div.appendChild(img);
