@@ -1,7 +1,12 @@
 import Dexie from 'dexie';
 import Log from './Log';
 
-export default class {
+export default class Database {
+  /**
+   * The constructor for a dexie database wraper
+   * @param {String} name the name of the database
+   * @param {Function} onUpdate a function called when the database has been updated
+   */
   constructor(name, onUpdate) {
     this.name = name;
     this.onUpdate = onUpdate;
@@ -11,6 +16,9 @@ export default class {
     });
   }
 
+  /**
+   * an async getter to get an object that stores the inventory
+   */
   get items() {
     return (async () => {
       const data = await this.db.data.toArray();
@@ -19,6 +27,9 @@ export default class {
     })();
   }
 
+  /**
+   * an async setter to set the inventory object
+   */
   set items(value) {
     return (async () => {
       await this.erase();
@@ -29,6 +40,9 @@ export default class {
     })();
   }
 
+  /**
+   * erases the database
+   */
   async erase() {
     Log(__filename, 'Clearing database');
     this.db.data.clear();
