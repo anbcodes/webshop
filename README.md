@@ -1,24 +1,11 @@
-# webshop
+# Simple Online Store
+For instructions read the [wiki](https://github.com/anbcodes/simpleonlinestore/wiki).
 
-## Project setup
-```
-npm install
-```
+## Running Locally
+If you want to run it locally or edit the code, clone this respository and run `npm install` then `npm run serve` to run the develoment server.
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## Building
+Run `npm run build` to build the project.
 
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Contributing
+If you would like to contribute please follow the eslint rules.
