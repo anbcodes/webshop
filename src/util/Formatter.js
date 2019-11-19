@@ -1,12 +1,21 @@
 import Log from './Log';
 
 export default {
-  formatPrice(number) {
-    const formatted = `$${parseFloat(number).toFixed(2)}`;
-    Log(__filename, 'Formatted price', { number, formatted }, true);
+  /**
+   * formats a price as a number to a two digit float prefixed with a $
+   * @param {Float} price
+   */
+  formatPrice(price) {
+    const formatted = `$${parseFloat(price).toFixed(2)}`;
+    Log(__filename, 'Formatted price', { price, formatted }, true);
     return formatted;
   },
 
+  /**
+   * A function the formates a string to a fixed length of 40 characters
+   * @param {String} str text on the left side and it will wrap
+   * @param {Float} price text on the right side
+   */
   formatStringForReceipt(str, price) {
     // TO-LONG
     const strList = str.split(' ');

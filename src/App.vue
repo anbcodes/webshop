@@ -1,6 +1,11 @@
 <template>
   <v-app>
     <v-app-bar app>
+      <v-btn icon href="https://github.com/anbcodes/webshop/wiki">
+        <v-icon>
+          mdi-help-circle-outline
+        </v-icon>
+      </v-btn>
       <v-img contain height="50" src="./assets/logo.png" lazy-src="./assets/logo.png" />
     </v-app-bar>
     <v-content>
