@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "core-js": "^3.3.2",
-    "dexie": "^2.0.4",
+    "dexie": "^3.2.2",
     "jsbarcode": "^3.11.0",
     "quagga": "^0.12.1",
     "vue": "^2.6.10",
